@@ -584,22 +584,18 @@ export default function AdminDashboard() {
           {printableTokensList.map((t, idx) => (
             <div
               key={t.id || idx}
-              className="border-2 border-dashed border-slate-600 rounded-xl p-2.5 flex flex-col items-center justify-between text-center bg-white break-inside-avoid"
+              className="border border-dashed border-slate-400 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white break-inside-avoid"
               style={{ pageBreakInside: 'avoid' }}
             >
-              <div className="w-full border-b border-slate-200 pb-1 mb-1.5">
-                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">TPS COBLOS ONLINE</p>
-                <p className="text-[10px] font-extrabold text-slate-900 uppercase">KODE TOKEN RAHASIA</p>
+              <p className="text-[11px] font-black text-slate-900 uppercase tracking-wide">KODE TOKEN RAHASIA</p>
+              
+              <div className="w-full border-b border-slate-200 my-1.5" />
+
+              <div className="w-full py-2 px-3 border border-slate-300 rounded-xl bg-white text-center">
+                <p className="font-mono text-base font-black tracking-wider text-slate-900">{t.token}</p>
               </div>
 
-              <div className="my-1 py-1.5 px-2 bg-slate-100 border border-slate-300 rounded-lg w-full">
-                <p className="font-mono text-base font-black tracking-widest text-slate-900">{t.token}</p>
-              </div>
-
-              <div className="w-full flex items-center justify-between text-[8px] text-slate-600 pt-1.5 border-t border-slate-200 font-semibold mt-1">
-                <span>Satu Suara</span>
-                <span>[ ] Status</span>
-              </div>
+              <div className="w-full border-b border-slate-200 my-1.5" />
             </div>
           ))}
         </div>
