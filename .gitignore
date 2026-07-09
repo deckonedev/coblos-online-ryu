@@ -16,8 +16,10 @@ logs/
 *.pid
 .tunnel_config.json
 
-# OS / IDE
+# OS / IDE / Binaries
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+*.exe
+*.zip

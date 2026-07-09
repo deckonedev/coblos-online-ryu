@@ -289,6 +289,8 @@ export default function AdminDashboard() {
   }));
   
   const filteredTokens = tokens.filter(t => t.token && t.token.includes(searchToken.toUpperCase()));
+  const unusedTokensList = filteredTokens.filter(t => !t.is_used);
+  const printableTokensList = unusedTokensList.length > 0 ? unusedTokensList : filteredTokens;
   const usedTokens = tokens.filter(t => t.is_used);
 
   const navItems = [
@@ -571,6 +573,37 @@ export default function AdminDashboard() {
           </div>
         )}
       </AnimatePresence>
+      {/* Printable Token Grid Sheet Optimized for A4 */}
+      <div className="hidden print:block print:w-full print:bg-white print:text-black print:p-4">
+        <div className="text-center border-b-2 border-slate-800 pb-3 mb-5">
+          <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">KARTU TOKEN PEMILIHAN OSIS (COBLOS ONLINE)</h1>
+          <p className="text-xs font-semibold text-slate-600 mt-1">Potong mengikuti garis tepi (garis putus-putus) di bawah ini dan bagikan kepada setiap pemilih. Setiap token hanya dapat digunakan 1 kali.</p>
+        </div>
+
+        <div className="grid grid-cols-4 gap-3">
+          {printableTokensList.map((t, idx) => (
+            <div
+              key={t.id || idx}
+              className="border-2 border-dashed border-slate-600 rounded-xl p-2.5 flex flex-col items-center justify-between text-center bg-white break-inside-avoid"
+              style={{ pageBreakInside: 'avoid' }}
+            >
+              <div className="w-full border-b border-slate-200 pb-1 mb-1.5">
+                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">TPS COBLOS ONLINE</p>
+                <p className="text-[10px] font-extrabold text-slate-900 uppercase">KODE TOKEN RAHASIA</p>
+              </div>
+
+              <div className="my-1 py-1.5 px-2 bg-slate-100 border border-slate-300 rounded-lg w-full">
+                <p className="font-mono text-base font-black tracking-widest text-slate-900">{t.token}</p>
+              </div>
+
+              <div className="w-full flex items-center justify-between text-[8px] text-slate-600 pt-1.5 border-t border-slate-200 font-semibold mt-1">
+                <span>Satu Suara</span>
+                <span>[ ] Status</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
