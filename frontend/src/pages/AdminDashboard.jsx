@@ -44,8 +44,7 @@ import {
   ResponsiveContainer, 
   Cell 
 } from 'recharts';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+import { API_BASE_URL } from '../config';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function AdminDashboard() {

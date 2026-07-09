@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LayoutDashboard } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+import { API_BASE_URL } from '../config';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
