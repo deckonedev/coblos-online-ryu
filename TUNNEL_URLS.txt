@@ -1,0 +1,19 @@
+﻿====================================
+COBLOS ONLINE - Public Tunnel URLs
+Generated: 2026-07-09 23:28:08
+====================================
+
+DOMAIN (share this!):
+  http://pilkasis.deckonecode.my.id
+
+FRONTEND (direct tunnel):
+  https://donate-strategic-fountain-episodes.trycloudflare.com
+
+BACKEND API:
+  https://mistakes-dollars-tampa-photograph.trycloudflare.com/api
+
+LOCAL:
+  Frontend: http://127.0.0.1:5173
+  Backend:  http://127.0.0.1:8000
+
+====================================
