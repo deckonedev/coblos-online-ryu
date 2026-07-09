@@ -17,7 +17,20 @@ param(
     [switch]$SkipFrontend
 )
 
-# ======================== CONFIG ========================
+# ============ SET WINDOW SIZE & TITLE ============
+try {
+    $Host.UI.RawUI.WindowTitle = "COBLOS ONLINE - Tunnel Runner"
+    $maxW = $Host.UI.RawUI.MaxPhysicalWindowSize.Width
+    $maxH = $Host.UI.RawUI.MaxPhysicalWindowSize.Height
+    $w = [Math]::Min(100, $maxW)
+    $h = [Math]::Min(30, $maxH)
+    $buf = $Host.UI.RawUI.BufferSize
+    if ($buf.Width -lt $w) { $buf.Width = $w }
+    $Host.UI.RawUI.BufferSize = $buf
+    $Host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size($w, $h)
+} catch {}
+
+# =================== CONFIG ===================
 $BACKEND_PORT  = 8000
 $FRONTEND_PORT = 5173
 $PROJECT_ROOT  = Split-Path -Parent $MyInvocation.MyCommand.Definition
@@ -30,7 +43,7 @@ $CLOUDFLARED   = Join-Path $PROJECT_ROOT "cloudflared.exe"
 $WEBHOOK_DOMAIN  = "pilkasis.deckonecode.my.id"
 $WEBHOOK_URL     = "https://$WEBHOOK_DOMAIN/webhook.php"
 $WEBHOOK_SECRET  = "coblos-osis-2026"
-# ========================================================
+# ================================================
 
 # Create log directory
 if (-not (Test-Path $LOG_DIR)) {
@@ -39,10 +52,10 @@ if (-not (Test-Path $LOG_DIR)) {
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "  ==========================================================" -ForegroundColor Cyan
-    Write-Host "          COBLOS ONLINE - Public Tunnel Runner              " -ForegroundColor Cyan
-    Write-Host "            Powered by Cloudflare Quick Tunnel              " -ForegroundColor Cyan
-    Write-Host "  ==========================================================" -ForegroundColor Cyan
+    Write-Host "  ================================================" -ForegroundColor Cyan
+    Write-Host "    COBLOS ONLINE - Public Tunnel Runner          " -ForegroundColor Cyan
+    Write-Host "    Powered by Cloudflare Quick Tunnel            " -ForegroundColor Cyan
+    Write-Host "  ================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -391,45 +404,44 @@ VITE_API_URL=$backendUrl/api
 
     # ==================== ALL DONE ====================
     Write-Host ""
-    Write-Host "  ============================================================" -ForegroundColor Green
-    Write-Host "               ALL SYSTEMS ARE LIVE!                        " -ForegroundColor Green
-    Write-Host "  ============================================================" -ForegroundColor Green
+    Write-Host "  ================================================" -ForegroundColor Green
+    Write-Host "         ALL SYSTEMS ARE LIVE!                    " -ForegroundColor Green
+    Write-Host "  ================================================" -ForegroundColor Green
     Write-Host ""
     if ($webhookSuccess) {
-        Write-Host "  [DOMAIN URL - Share this!]:" -ForegroundColor Cyan
-        Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
-        Write-Host "    https://$WEBHOOK_DOMAIN" -ForegroundColor White
-        Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
+        Write-Host "  [DOMAIN - Share this!]" -ForegroundColor Cyan
+        Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
+        Write-Host "  https://$WEBHOOK_DOMAIN" -ForegroundColor White
+        Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
         Write-Host ""
     }
-    Write-Host "  [TUNNEL URLs - direct access]:" -ForegroundColor Cyan
-    Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
-    Write-Host "    Frontend : $frontendUrl" -ForegroundColor White
-    Write-Host "    Backend  : $backendUrl" -ForegroundColor White
-    Write-Host "    API      : $backendUrl/api" -ForegroundColor White
-    Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  [TUNNEL URLs]" -ForegroundColor Cyan
+    Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  Frontend : $frontendUrl" -ForegroundColor White
+    Write-Host "  Backend  : $backendUrl" -ForegroundColor White
+    Write-Host "  API      : $backendUrl/api" -ForegroundColor White
+    Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "  [LOCAL URLs]:" -ForegroundColor Cyan
-    Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
-    Write-Host "    Frontend : http://127.0.0.1:$FRONTEND_PORT" -ForegroundColor DarkGray
-    Write-Host "    Backend  : http://127.0.0.1:$BACKEND_PORT" -ForegroundColor DarkGray
-    Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  [LOCAL]" -ForegroundColor Cyan
+    Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  Frontend : http://127.0.0.1:$FRONTEND_PORT" -ForegroundColor DarkGray
+    Write-Host "  Backend  : http://127.0.0.1:$BACKEND_PORT" -ForegroundColor DarkGray
+    Write-Host "  ------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  [Logs]: $LOG_DIR" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "  [!] Tekan Ctrl+C untuk menghentikan semua service." -ForegroundColor Yellow
+    Write-Host "  [!] Tekan Ctrl+C untuk stop." -ForegroundColor Yellow
     Write-Host ""
 
     # Save URL info to a file for easy reference
     $urlInfoPath = Join-Path $PROJECT_ROOT "TUNNEL_URLS.txt"
     @"
-====================================
-COBLOS ONLINE - Public Tunnel URLs
+COBLOS ONLINE - Tunnel URLs
 Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-====================================
+================================================
 
 DOMAIN (share this!):
-  http://$WEBHOOK_DOMAIN
+  https://$WEBHOOK_DOMAIN
 
 FRONTEND (direct tunnel):
   $frontendUrl
@@ -441,13 +453,13 @@ LOCAL:
   Frontend: http://127.0.0.1:$FRONTEND_PORT
   Backend:  http://127.0.0.1:$BACKEND_PORT
 
-====================================
+================================================
 "@ | Set-Content -Path $urlInfoPath -Encoding UTF8
     Write-Info "URLs saved to TUNNEL_URLS.txt"
     Write-Host ""
 
     # Keep the script running with health checks
-    Write-Host "  Press Ctrl+C to stop all services..." -ForegroundColor DarkGray
+    Write-Host "  Press Ctrl+C to stop..." -ForegroundColor DarkGray
     Write-Host ""
 
     while ($true) {
