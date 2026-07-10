@@ -27,3 +27,18 @@ const getApiBaseUrl = () => {
 };
 
 export const API_BASE_URL = getApiBaseUrl();
+
+/**
+ * Cek apakah server benar-benar mati (network error).
+ * Jika server merespons (walau error 401/500), berarti server HIDUP.
+ * Hanya jika tidak ada respons sama sekali = server OFF.
+ */
+export const checkServerHealth = async () => {
+  try {
+    await fetch(`${API_BASE_URL}/candidates`, { method: 'GET', mode: 'cors' });
+    return true; // Server hidup
+  } catch (err) {
+    // fetch hanya throw error jika NETWORK FAILURE (server tidak bisa dihubungi)
+    return false; // Server benar-benar mati
+  }
+};

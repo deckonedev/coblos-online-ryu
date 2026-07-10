@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Zap, Activity, PieChart as PieIcon, RefreshCcw, ArrowLeft, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, checkServerHealth } from '../config';
 import ServerOffline from '../components/ServerOffline';
 import PageLoader from '../components/PageLoader';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -30,10 +30,11 @@ export default function PublicResults() {
 
   useEffect(() => {
     document.title = "Live Hasil Pemilihan | Coblos Online";
-    axios.get(`${API_BASE_URL}/stats`)
-      .then(() => { setServerOffline(false); fetchData(); })
-      .catch(() => setServerOffline(true))
-      .finally(() => setLoading(false));
+    checkServerHealth().then((alive) => {
+      setServerOffline(!alive);
+      if (alive) fetchData();
+      else setLoading(false);
+    });
     const interval = setInterval(() => fetchData(false), 30000);
     return () => clearInterval(interval);
   }, []);

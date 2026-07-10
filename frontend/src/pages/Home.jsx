@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Vote as VoteIcon, Key, Fingerprint, ShieldCheck, CheckCircle2, AlertCircle, Loader2, LogOut } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, checkServerHealth } from '../config';
 import ServerOffline from '../components/ServerOffline';
 import PageLoader from '../components/PageLoader';
 
@@ -22,10 +22,11 @@ export default function Home() {
 
   useEffect(() => {
     document.title = "TPS Online | Coblos Online";
-    axios.get(`${API_BASE_URL}/candidates`)
-      .then(() => { setServerOffline(false); if (isLoggedIn) fetchCandidates(); })
-      .catch(() => setServerOffline(true))
-      .finally(() => setInitialLoading(false));
+    checkServerHealth().then((alive) => {
+      setServerOffline(!alive);
+      if (alive && isLoggedIn) fetchCandidates();
+      setInitialLoading(false);
+    });
   }, [isLoggedIn]);
 
   if (initialLoading) return <PageLoader />;

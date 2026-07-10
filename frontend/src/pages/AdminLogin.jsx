@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LayoutDashboard } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, checkServerHealth } from '../config';
 import ServerOffline from '../components/ServerOffline';
 import PageLoader from '../components/PageLoader';
 
@@ -16,10 +16,10 @@ export default function AdminLogin() {
 
   useEffect(() => {
     document.title = "Login Admin | Coblos Online";
-    axios.get(`${API_BASE_URL}/candidates`)
-      .then(() => setServerOffline(false))
-      .catch(() => setServerOffline(true))
-      .finally(() => setInitialLoading(false));
+    checkServerHealth().then((alive) => {
+      setServerOffline(!alive);
+      setInitialLoading(false);
+    });
   }, []);
 
   if (initialLoading) return <PageLoader />;
