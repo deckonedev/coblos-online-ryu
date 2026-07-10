@@ -20,6 +20,13 @@ export default function Home() {
   const [showThankYou, setShowThankYou] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
+  const fetchCandidates = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/candidates`);
+      setCandidates(res.data);
+    } catch (err) { console.error(err); }
+  };
+
   useEffect(() => {
     document.title = "TPS Online | Coblos Online";
     checkServerHealth().then((alive) => {
@@ -31,13 +38,6 @@ export default function Home() {
 
   if (initialLoading) return <PageLoader />;
   if (serverOffline) return <ServerOffline />;
-
-  const fetchCandidates = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/candidates`);
-      setCandidates(res.data);
-    } catch (err) { console.error(err); }
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();

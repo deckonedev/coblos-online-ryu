@@ -81,19 +81,10 @@ export default function AdminDashboard() {
   const fileInputRef = useRef(null);
   const adminToken = localStorage.getItem('admin_token');
 
-  useEffect(() => {
-    document.title = "Admin Dashboard | Coblos Online";
-    checkServerHealth().then((alive) => {
-      setServerOffline(!alive);
-      if (alive) fetchData();
-      setInitialLoading(false);
-    });
-    const interval = setInterval(() => fetchData(false), 300000);
-    return () => clearInterval(interval);
-  }, [activeMenu]);
-
-  if (initialLoading) return <PageLoader />;
-  if (serverOffline) return <ServerOffline />;
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2000);
+  };
 
   const fetchData = async (isManual = false) => {
     setRefreshing(true);
@@ -119,10 +110,19 @@ export default function AdminDashboard() {
     }
   };
 
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2000);
-  };
+  useEffect(() => {
+    document.title = "Admin Dashboard | Coblos Online";
+    checkServerHealth().then((alive) => {
+      setServerOffline(!alive);
+      if (alive) fetchData();
+      setInitialLoading(false);
+    });
+    const interval = setInterval(() => fetchData(false), 300000);
+    return () => clearInterval(interval);
+  }, [activeMenu]);
+
+  if (initialLoading) return <PageLoader />;
+  if (serverOffline) return <ServerOffline />;
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
