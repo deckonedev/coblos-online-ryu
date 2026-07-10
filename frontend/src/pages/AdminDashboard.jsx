@@ -314,8 +314,9 @@ export default function AdminDashboard() {
   const sortedCandidates = [...(stats.candidates || [])].sort((a,b) => b.votes - a.votes);
   const leading = sortedCandidates[0];
   const second = sortedCandidates[1];
-  const gap = (leading && second) ? leading.votes - second.votes : 0;
-  const isDraw = leading && second && leading.votes === second.votes;
+  const isDraw = leading && second && leading.votes === second.votes && leading.votes > 0;
+  const tiedCandidates = isDraw ? sortedCandidates.filter(c => c.votes === leading.votes) : [];
+  const gap = isDraw ? 0 : ((leading && second) ? leading.votes - second.votes : (leading ? leading.votes : 0));
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans">
@@ -409,7 +410,40 @@ export default function AdminDashboard() {
 
           {activeMenu === 'Stats' && (
             <div className="space-y-4 lg:space-y-6 pb-6">
-              <div className="glass p-6 rounded-[32px] bg-gradient-to-br from-primary-500/10 to-transparent border-primary-500/20 relative overflow-hidden"><Zap className="absolute -right-8 -top-8 w-32 h-32 text-primary-500/5 rotate-12" /><div className="flex items-center space-x-4 mb-6"><div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20"><Trophy className="text-white" size={24} /></div><div><h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Kandidat Unggul</h3><p className="text-xl font-black text-white">{leading ? leading.name : 'Belum Ada Data'}</p></div></div><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="p-4 bg-white/5 rounded-2xl border border-white/5"><p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Status Persaingan</p><p className={`text-lg font-black ${isDraw ? 'text-amber-500' : 'text-emerald-500'}`}>{isDraw ? 'POSISI SERI (DRAW)' : 'UNGGUL SEMENTARA'}</p></div><div className="p-4 bg-white/5 rounded-2xl border border-white/5"><p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Selisih Suara</p><div className="flex items-end space-x-2"><p className="text-2xl font-black text-primary-400">{gap}</p><p className="text-xs font-bold text-slate-500 mb-1.5 uppercase">Suara</p></div></div></div></div>
+              <div className="glass p-6 rounded-[32px] bg-gradient-to-br from-primary-500/10 to-transparent border-primary-500/20 relative overflow-hidden">
+                <Zap className="absolute -right-8 -top-8 w-32 h-32 text-primary-500/5 rotate-12" />
+                <div className="flex items-center space-x-4 mb-6">
+                  <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20"><Trophy className="text-white" size={24} /></div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                      {!leading || leading.votes === 0 ? 'Status Perolehan Suara' : isDraw ? `POSISI SERI (${tiedCandidates.length} PASLON SAMA KUAT)` : 'Kandidat Unggul'}
+                    </h3>
+                    <p className="text-xl font-black text-white">
+                      {!leading || leading.votes === 0 ? 'Belum Ada Suara' : isDraw ? `${tiedCandidates.map(c => (c.name || '').split(':')[0]).join(' = ')} (${leading.votes} Suara)` : leading.name}
+                    </p>
+                    {isDraw && (
+                      <p className="text-xs font-semibold text-amber-400 mt-1">
+                        Kandidat bersaing ketat: {tiedCandidates.map(c => c.name).join(' • ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Status Persaingan</p>
+                    <p className={`text-lg font-black ${!leading || leading.votes === 0 ? 'text-slate-400' : isDraw ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      {!leading || leading.votes === 0 ? 'BELUM DIMULAI' : isDraw ? 'POSISI SERI (DRAW)' : 'UNGGUL SEMENTARA'}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Selisih Suara</p>
+                    <div className="flex items-end space-x-2">
+                      <p className="text-2xl font-black text-primary-400">{gap}</p>
+                      <p className="text-xs font-bold text-slate-500 mb-1.5 uppercase">Suara</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div className="glass p-6 rounded-[32px] flex flex-col h-[350px]"><div className="flex items-center justify-between mb-4"><h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Distribusi Suara</h3><PieIcon className="text-slate-600" size={18} /></div><div className="flex-1"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={chartData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={5} dataKey="votes" label={renderCustomLabel} labelLine={{ stroke: '#64748b', strokeWidth: 1.5 }}>{chartData.map((e, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="none" />)}</Pie><Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold'}} /></PieChart></ResponsiveContainer></div></div><div className="glass p-6 rounded-[32px] flex flex-col justify-between space-y-6"><div className="space-y-4"><h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Rangkuman Suara</h3><div className="space-y-3">{sortedCandidates.map((c, i) => (<div key={i} className="space-y-1"><div className="flex justify-between text-xs font-bold"><span>{c.name}</span><span className="text-primary-400">{c.votes} Suara ({((c.votes / (stats.summary?.used_tokens || 1)) * 100).toFixed(1)}%)</span></div><div className="h-2 bg-white/5 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${(c.votes / (stats.summary?.used_tokens || 1)) * 100}%` }} className="h-full bg-primary-500" /></div></div>))}</div></div><div className="p-5 bg-amber-500/5 border border-amber-500/10 rounded-2xl flex items-center space-x-4"><div className="p-2 bg-amber-500/20 rounded-lg"><Activity className="text-amber-500" size={20} /></div><div><p className="text-[10px] font-bold text-amber-500/60 uppercase">Suara Belum Masuk (Potensi)</p><p className="text-xl font-black text-amber-500">{stats.summary?.unused_tokens} Pemilih Lagi</p></div></div></div></div>
             </div>
           )}

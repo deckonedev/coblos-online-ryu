@@ -65,8 +65,9 @@ export default function PublicResults() {
   const sortedCandidates = [...(stats.candidates || [])].sort((a, b) => b.votes - a.votes);
   const leading = sortedCandidates[0];
   const second = sortedCandidates[1];
-  const gap = (leading && second) ? leading.votes - second.votes : 0;
-  const isDraw = leading && second && leading.votes === second.votes;
+  const isDraw = leading && second && leading.votes === second.votes && leading.votes > 0;
+  const tiedCandidates = isDraw ? sortedCandidates.filter(c => c.votes === leading.votes) : [];
+  const gap = isDraw ? 0 : ((leading && second) ? leading.votes - second.votes : (leading ? leading.votes : 0));
 
   const chartData = (stats.candidates || []).map(c => ({
     name: (c.name || 'Unknown').split(':')[0],
@@ -130,18 +131,33 @@ export default function PublicResults() {
                   <Trophy className="text-white" size={26} />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest">Kandidat Unggul Sementara</h3>
-                  <p className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                    {leading ? leading.name : 'Belum Ada Suara'}
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest">
+                    {!leading || leading.votes === 0
+                      ? 'Status Perolehan Suara'
+                      : isDraw
+                        ? `POSISI SERI (${tiedCandidates.length} PASLON SAMA KUAT)`
+                        : 'Kandidat Unggul Sementara'}
+                  </h3>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1">
+                    {!leading || leading.votes === 0
+                      ? 'Belum Ada Suara Masuk'
+                      : isDraw
+                        ? `${tiedCandidates.map(c => (c.name || '').split(':')[0]).join(' = ')} (${leading.votes} Suara)`
+                        : leading.name}
                   </p>
+                  {isDraw && (
+                    <p className="text-xs sm:text-sm font-semibold text-amber-400 mt-1">
+                      Kandidat bersaing ketat: {tiedCandidates.map(c => c.name).join('  •  ')}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                 <div className="p-5 bg-white/5 rounded-2xl border border-white/10">
                   <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Status Persaingan</p>
-                  <p className={`text-lg sm:text-xl font-black ${isDraw ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {isDraw ? 'POSISI SERI (DRAW)' : 'UNGGUL SEMENTARA'}
+                  <p className={`text-lg sm:text-xl font-black ${!leading || leading.votes === 0 ? 'text-slate-400' : isDraw ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {!leading || leading.votes === 0 ? 'BELUM DIMULAI' : isDraw ? 'POSISI SERI (DRAW)' : 'UNGGUL SEMENTARA'}
                   </p>
                 </div>
 
