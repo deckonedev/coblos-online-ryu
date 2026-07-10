@@ -46,6 +46,7 @@ import {
 } from 'recharts';
 import { API_BASE_URL } from '../config';
 import ServerOffline from '../components/ServerOffline';
+import PageLoader from '../components/PageLoader';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function AdminDashboard() {
@@ -65,6 +66,7 @@ export default function AdminDashboard() {
   const [useUppercase, setUseUppercase] = useState(true);
   const [useLowercase, setUseLowercase] = useState(false);
   const [serverOffline, setServerOffline] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -81,11 +83,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     document.title = "Admin Dashboard | Coblos Online";
-    axios.get(`${API_BASE_URL}/stats`).then(() => { setServerOffline(false); fetchData(); }).catch(() => setServerOffline(true));
+    axios.get(`${API_BASE_URL}/stats`)
+      .then(() => { setServerOffline(false); fetchData(); })
+      .catch(() => setServerOffline(true))
+      .finally(() => setInitialLoading(false));
     const interval = setInterval(() => fetchData(false), 300000);
     return () => clearInterval(interval);
   }, [activeMenu]);
 
+  if (initialLoading) return <PageLoader />;
   if (serverOffline) return <ServerOffline />;
 
   const fetchData = async (isManual = false) => {

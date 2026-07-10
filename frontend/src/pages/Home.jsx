@@ -4,6 +4,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 import ServerOffline from '../components/ServerOffline';
+import PageLoader from '../components/PageLoader';
 
 export default function Home() {
   const [token, setToken] = useState(localStorage.getItem('voter_token') || '');
@@ -13,6 +14,7 @@ export default function Home() {
   const [hasVoted, setHasVoted] = useState(localStorage.getItem('has_voted') === 'true');
   const [message, setMessage] = useState(null);
   const [serverOffline, setServerOffline] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
@@ -20,12 +22,13 @@ export default function Home() {
 
   useEffect(() => {
     document.title = "TPS Online | Coblos Online";
-    axios.get(`${API_BASE_URL}/candidates`).then(() => setServerOffline(false)).catch(() => setServerOffline(true));
-    if (isLoggedIn) {
-      fetchCandidates();
-    }
+    axios.get(`${API_BASE_URL}/candidates`)
+      .then(() => { setServerOffline(false); if (isLoggedIn) fetchCandidates(); })
+      .catch(() => setServerOffline(true))
+      .finally(() => setInitialLoading(false));
   }, [isLoggedIn]);
 
+  if (initialLoading) return <PageLoader />;
   if (serverOffline) return <ServerOffline />;
 
   const fetchCandidates = async () => {

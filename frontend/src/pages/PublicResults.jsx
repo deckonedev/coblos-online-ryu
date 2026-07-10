@@ -6,6 +6,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ServerOffline from '../components/ServerOffline';
+import PageLoader from '../components/PageLoader';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function PublicResults() {
@@ -29,11 +30,15 @@ export default function PublicResults() {
 
   useEffect(() => {
     document.title = "Live Hasil Pemilihan | Coblos Online";
-    axios.get(`${API_BASE_URL}/stats`).then(() => { setServerOffline(false); fetchData(); }).catch(() => setServerOffline(true));
+    axios.get(`${API_BASE_URL}/stats`)
+      .then(() => { setServerOffline(false); fetchData(); })
+      .catch(() => setServerOffline(true))
+      .finally(() => setLoading(false));
     const interval = setInterval(() => fetchData(false), 30000);
     return () => clearInterval(interval);
   }, []);
 
+  if (loading) return <PageLoader />;
   if (serverOffline) return <ServerOffline />;
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, percent }) => {

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 import ServerOffline from '../components/ServerOffline';
+import PageLoader from '../components/PageLoader';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -11,12 +12,17 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [serverOffline, setServerOffline] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     document.title = "Login Admin | Coblos Online";
-    axios.get(`${API_BASE_URL}/candidates`).then(() => setServerOffline(false)).catch(() => setServerOffline(true));
+    axios.get(`${API_BASE_URL}/candidates`)
+      .then(() => setServerOffline(false))
+      .catch(() => setServerOffline(true))
+      .finally(() => setInitialLoading(false));
   }, []);
 
+  if (initialLoading) return <PageLoader />;
   if (serverOffline) return <ServerOffline />;
 
   const handleLogin = async (e) => {
