@@ -45,6 +45,7 @@ import {
   Cell 
 } from 'recharts';
 import { API_BASE_URL } from '../config';
+import ServerOffline from '../components/ServerOffline';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function AdminDashboard() {
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
   const [useNumbers, setUseNumbers] = useState(true);
   const [useUppercase, setUseUppercase] = useState(true);
   const [useLowercase, setUseLowercase] = useState(false);
+  const [serverOffline, setServerOffline] = useState(false);
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -79,10 +81,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     document.title = "Admin Dashboard | Coblos Online";
-    fetchData();
+    axios.get(`${API_BASE_URL}/stats`).then(() => { setServerOffline(false); fetchData(); }).catch(() => setServerOffline(true));
     const interval = setInterval(() => fetchData(false), 300000);
     return () => clearInterval(interval);
   }, [activeMenu]);
+
+  if (serverOffline) return <ServerOffline />;
 
   const fetchData = async (isManual = false) => {
     setRefreshing(true);

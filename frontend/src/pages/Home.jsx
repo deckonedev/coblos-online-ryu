@@ -3,6 +3,7 @@ import { Vote as VoteIcon, Key, Fingerprint, ShieldCheck, CheckCircle2, AlertCir
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../config';
+import ServerOffline from '../components/ServerOffline';
 
 export default function Home() {
   const [token, setToken] = useState(localStorage.getItem('voter_token') || '');
@@ -11,6 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [hasVoted, setHasVoted] = useState(localStorage.getItem('has_voted') === 'true');
   const [message, setMessage] = useState(null);
+  const [serverOffline, setServerOffline] = useState(false);
   
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
@@ -18,10 +20,13 @@ export default function Home() {
 
   useEffect(() => {
     document.title = "TPS Online | Coblos Online";
+    axios.get(`${API_BASE_URL}/candidates`).then(() => setServerOffline(false)).catch(() => setServerOffline(true));
     if (isLoggedIn) {
       fetchCandidates();
     }
   }, [isLoggedIn]);
+
+  if (serverOffline) return <ServerOffline />;
 
   const fetchCandidates = async () => {
     try {

@@ -5,12 +5,14 @@ import { Trophy, Zap, Activity, PieChart as PieIcon, RefreshCcw, ArrowLeft, Tren
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import ServerOffline from '../components/ServerOffline';
 const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function PublicResults() {
   const [stats, setStats] = useState({ candidates: [], summary: {} });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [serverOffline, setServerOffline] = useState(false);
 
   const fetchData = async (isManual = false) => {
     if (isManual) setRefreshing(true);
@@ -27,10 +29,12 @@ export default function PublicResults() {
 
   useEffect(() => {
     document.title = "Live Hasil Pemilihan | Coblos Online";
-    fetchData();
-    const interval = setInterval(() => fetchData(false), 30000); // Live update setiap 30 detik
+    axios.get(`${API_BASE_URL}/stats`).then(() => { setServerOffline(false); fetchData(); }).catch(() => setServerOffline(true));
+    const interval = setInterval(() => fetchData(false), 30000);
     return () => clearInterval(interval);
   }, []);
+
+  if (serverOffline) return <ServerOffline />;
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, percent }) => {
     const RADIAN = Math.PI / 180;

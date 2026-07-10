@@ -3,16 +3,21 @@ import { Mail, Lock, LayoutDashboard } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
+import ServerOffline from '../components/ServerOffline';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [serverOffline, setServerOffline] = useState(false);
 
   useEffect(() => {
     document.title = "Login Admin | Coblos Online";
+    axios.get(`${API_BASE_URL}/candidates`).then(() => setServerOffline(false)).catch(() => setServerOffline(true));
   }, []);
+
+  if (serverOffline) return <ServerOffline />;
 
   const handleLogin = async (e) => {
     e.preventDefault();
